@@ -1,0 +1,19 @@
+﻿58131
+사랑하게 하소서
+<1>
+NC/F#m7,B7,/E,,,/F#m7,B7,/
+E,,,/F#m7,B7,/E,,,/F#m7,B7,/
+E,Fdim,/F#m7,B7,/E,E(C#),/E,B7,/
+Esus,E,/F#m7,B,/E,,,/F#m7,B7,/
+E,Bdim(F),/F#m7,BB7/AbmAbm7C#m7,/F#m,B,/
+E,,,/E,,,/A,E9B/E,,,/
+AA9B9B6/EEsusE,/A,BsusB/E,,,/
+A,/B,,,/Am,DDsus/G,,,/
+Am,DDsus/G9,Em7,/G6,D,/Bm,Em,/
+Am,D,/G,,,/G,,,/G6,D,/
+G,,,/Am7,D,/GGsusGBm/G6,,D/
+G,,,/Am,D,/Bm,Em,/Cadd9,D,/
+Bm,Em,/Am,D,/Bm,Em,/C,D,/ 
+Bm,Em,/Am,D,/NC,,,/Am,D,/ 
+G,Em,/Am,Dsus(A),/G,,,/Am,D,/  
+G,C,/G,,,/ 
