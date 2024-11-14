@@ -4,6 +4,7 @@ import 'package:lyrics_library_project/widgets/base_indicator.dart';
 import '../bean/lyric_bean.dart';
 import '../controller/MainController.dart';
 import '../controller/SearchController.dart';
+import '../db/WebDbHelper.dart';
 import '../routes/routes.dart';
 import '../widgets/CupertinoActionSheet.dart';
 
@@ -120,7 +121,7 @@ class MainPageState extends State<MainPage> {
     });
   }
 
-  Widget itemWidget(LyricBean bean) {
+  Widget itemWidget(Map<String,Object?> bean) {
     return InkWell(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -129,27 +130,27 @@ class MainPageState extends State<MainPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "${'lyrics_title'.tr} : ${bean.name}",
+              bean[DatabaseHelper.columnNumber]?.toString()??"",
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(
-              height: 6,
+              width: 30,
             ),
-            Text(
-              "${'lyrics_number'.tr} : ${bean.number}",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+           Expanded(child:  Text(
+             bean[DatabaseHelper.columnName]?.toString()??"",
+             maxLines: 1,
+             overflow: TextOverflow.ellipsis,
+           )),
           ],
         ),
       ),
       onTap: () {
-        Get.toNamed(Routes.details, arguments: bean.number);
+        Get.toNamed(Routes.details, arguments:bean[DatabaseHelper.columnNumber]);
       },
     );
   }

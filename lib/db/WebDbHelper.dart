@@ -1,9 +1,12 @@
 import 'dart:io' as io;
 import 'dart:io';
+import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_platform/universal_platform.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart' as web;
 
 class DatabaseHelper {
   // 单例数据库对象
@@ -17,8 +20,18 @@ class DatabaseHelper {
 
   // 获取数据库路径
   Future<String> _getDatabasePath() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return join(directory.path, 'my_database.db');
+    String? tempDirectory;
+    if(UniversalPlatform.isDesktopOrWeb){
+      // final PathProviderWindows provider = PathProviderWindows();
+      // tempDirectory =await  provider.getApplicationCachePath();
+     // tempDirectory ="$table.db";
+      //tempDirectory ="web_path";
+    }else{
+      final directory = await getTemporaryDirectory();
+      tempDirectory = directory.path;
+    }
+
+    return join(tempDirectory??"", 'my_database.db');
   }
 
   // 初始化数据库
@@ -26,8 +39,9 @@ class DatabaseHelper {
     if (_database != null) return _database!;
 
     // 检查平台，选择对应的 sqflite 库
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
       // 使用 sqflite（适用于 Android/iOS）
+
       _database = await openDatabase(
         await _getDatabasePath(),
         version: 1,
@@ -43,22 +57,27 @@ class DatabaseHelper {
       );
     } else {
       // 使用 sqflite_common_ffi（适用于桌面平台）
-      sqfliteFfiInit(); // 初始化 FFI
+     // sqfliteFfiInit(); // 初始化 FFI
 
-      _database = await databaseFactory.openDatabase(
-        await _getDatabasePath(),
-        options: OpenDatabaseOptions(
-          onCreate: (db, version) async {
-            await db.execute('''
+      try{
+        _database = await databaseFactory.openDatabase(
+          await _getDatabasePath(),
+          options: OpenDatabaseOptions(
+            version: 1,
+            onCreate: (db, version) async {
+              await db.execute('''
             CREATE TABLE $table(
               $columnNumber TEXT PRIMARY KEY,
               $columnName TEXT NOT NULL,
               $columnFirstLine TEXT
             )
             ''');
-          },
-        ),
-      );
+            },
+          ),
+        );
+      }catch(e){
+        print("-----------create error : ${e.toString()}");
+      }
     }
     return _database!;
   }
@@ -78,19 +97,20 @@ class DatabaseHelper {
   }
 
   // 查询单条数据
-  Future<List<Map<String, String>>?> getItem(String number) async {
+  Future<List<Map<String, Object?>>?> getItem(String number) async {
     final db = await _initDatabase();
-    List<Map<String, String>> result = await db.query(
+    List<Map<String, Object?>> result = await db.query(
       table,
-      where: '$columnNumber = ?',
-      whereArgs: [number],
+      columns: [columnNumber, columnName,columnFirstLine],
+      //where: '$columnNumber = ?',
+      where: '$columnNumber LIKE ? OR $columnName LIKE ? OR $columnFirstLine LIKE ?',
+      whereArgs:  ['%$number%', '%$number%', '%$number%'],
     );
     if (result.isNotEmpty) {
       return result; // 返回查询结果的第一条数据
     }
     return null; // 如果没有数据，则返回 null
   }
-
 
   // 插入多条数据
   Future<void> insertAllItems(List<Map<String, String>> items) async {
@@ -106,11 +126,12 @@ class DatabaseHelper {
       }
     });
   }
+
 // 查询所有数据
   Future<int> getItemCount() async {
     final db = await _initDatabase();
     // 使用 SELECT COUNT(*) 来获取表中记录数
     var result = await db.rawQuery('SELECT COUNT(*) FROM $table');
-    return Sqflite.firstIntValue(result) ?? 0;  // 如果没有数据，返回 0
+    return Sqflite.firstIntValue(result) ?? 0; // 如果没有数据，返回 0
   }
 }

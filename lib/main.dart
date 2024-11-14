@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'my_app.dart';
 
@@ -12,6 +16,11 @@ run() async {
   // const systemUiOverlayStyle =
   // SystemUiOverlayStyle(statusBarColor: Colors.transparent);
   // SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+  if (UniversalPlatform.isDesktopOrWeb) {
+    databaseFactory = databaseFactoryFfiWeb; // Use web-specific database factory
+  } else {
+    databaseFactory = databaseFactoryFfi; // For mobile/desktop, use the native FFI implementation
+  }
 
   runApp(const MyApp());
 }

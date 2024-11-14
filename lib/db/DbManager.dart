@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:lyrics_library_project/bean/lyric_bean.dart';
 import 'package:lyrics_library_project/db/DbHelper.dart';
+import 'package:lyrics_library_project/db/WebDbHelper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DbManager {
@@ -12,6 +13,14 @@ class DbManager {
   static DbManager getInstance() {
     _instance ??= DbManager._internal();
     return _instance!;
+  }
+
+  DatabaseHelper? _databaseHelper;
+
+  DatabaseHelper getDataHelper() {
+    _databaseHelper ??= DatabaseHelper();
+
+    return _databaseHelper!;
   }
 
   ///初始化數據
@@ -49,18 +58,20 @@ class DbManager {
 
   //所有的歌词库
   Future<int> initAllLyric(SharedPreferences sharedPreferences) async {
-    DbHelper dbHelper = await DbHelper.getInstance();
+    // DbHelper dbHelper = await DbHelper.getInstance();
     int? allCount = sharedPreferences.getInt("allCount");
     if (allCount != null && allCount >= 2000) {
       return allCount;
     }
-    int count = await dbHelper.insertList(getAllData());
+    // int count = await dbHelper.insertList(getAllData());
+    await getDataHelper().insertAllItems(getAllData());
+    int count = await getDataHelper().getItemCount();
     sharedPreferences.setInt("allCount", count);
     return count;
   }
 
   ///获取所有数据
-  List<LyricBean> getAllData() {
+  List<Map<String, String>> getAllData() {
     List<Map<String, String>> allData = [];
     List<Map<String, String>> list50000 = [
       {"number": "50001", "name": "만복의 근원 하나님", "firstLine": "만복의 근원 하나님"},
@@ -6718,18 +6729,18 @@ class DbManager {
     print("list57000 ---------${list57000.length}");
     allData.addAll(list58000);
     print("list58000 ---------${list58000.length}");
-
-    List<LyricBean> beans = [];
-    for (var element in allData) {
-      if (element['number']?.isNotEmpty == true &&
-          element['name']?.isNotEmpty == true) {
-        beans.add(LyricBean(
-            number: element['number'] ?? "",
-            name: element['name'] ?? "",
-            firstLine: element['firstLine'] ?? ""));
-      }
-    }
-    return beans;
+    return allData;
+    // List<LyricBean> beans = [];
+    // for (var element in allData) {
+    //   if (element['number']?.isNotEmpty == true &&
+    //       element['name']?.isNotEmpty == true) {
+    //     beans.add(LyricBean(
+    //         number: element['number'] ?? "",
+    //         name: element['name'] ?? "",
+    //         firstLine: element['firstLine'] ?? ""));
+    //   }
+    // }
+    // return beans;
   }
 
   ///获取韩文数据
@@ -11613,10 +11624,13 @@ class DbManager {
     return beans;
   }
 
-  Future<List<LyricBean>> query(String? searchString) async {
+  Future<List<Map<String,Object?>>?> query(String? searchString) async {
     if (searchString?.isNotEmpty == true) {
-      var dbHelper = await DbHelper.getInstance();
-      return await dbHelper.query(searchString!);
+      // var dbHelper = await DbHelper.getInstance();
+      // return await dbHelper.query(searchString!);
+      return await getDataHelper().getItem(searchString??"");
+
+
     } else {
       return [];
     }

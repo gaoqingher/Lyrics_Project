@@ -9,12 +9,13 @@ class SearchTextController extends GetxController {
 
   final searchTextEditingController = TextEditingController();
 
-  final lyricLists = RxList<LyricBean>();
-  List<LyricBean> allLyricList = [];
+  final lyricLists = RxList<Map<String,Object?>>();
+  List<Map<String,Object?>> allLyricList = [];
 
   @override
   void onInit() {
     ever(searchText, (callback) => queryLyric(searchText.value));
+    queryLyric(searchText.value);
     super.onInit();
   }
 
@@ -29,13 +30,15 @@ class SearchTextController extends GetxController {
 
   ///查询数据库获取歌词列表
   void queryLyric(String? text) async {
-    List<LyricBean> list;
+    List<Map<String,Object?>>? list;
     if (text?.isNotEmpty == true) {
       list = await DbManager.getInstance().query(text!);
       lyricLists(list);
     } else {
       if (allLyricList.isEmpty) {
-        allLyricList = DbManager.getInstance().getAllData();
+        allLyricList =  DbManager.getInstance().getAllData();
+        // List<Map<String, String>> list = DbManager.getInstance().getAllData();
+        // print("------------${list.length}");
       }
       lyricLists(allLyricList);
     }

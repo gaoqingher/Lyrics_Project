@@ -6,7 +6,7 @@ class MainController extends GetxController {
 
   @override
   Future<void> onInit() async {
-    //int count = await DbManager.getInstance().init();
+    int count = await DbManager.getInstance().init();
     initializationComplete(true);
     super.onInit();
   }
